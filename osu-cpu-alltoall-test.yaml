@@ -1,0 +1,49 @@
+metadata:
+  name: osu-cpu-alltoall-test
+spec:
+  slotsPerWorker: 1
+  runPolicy:
+    cleanPodPolicy: Running
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: mpi-launcher
+            image: shuzhengz/omb-k8s:7.5.2
+            command:
+            - mpirun
+            - --allow-run-as-root
+            - -mca
+            - plm_rsh_args
+            - "-o StrictHostKeyChecking=no"
+            - -np
+            - "2"
+            - /usr/local/osu/libexec/osu-micro-benchmarks/mpi/collective/osu_alltoall
+    Worker:
+      replicas: 2
+      template:
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: training.kubeflow.org/job-role
+                    operator: In
+                    values:
+                    - worker
+                topologyKey: kubernetes.io/hostname
+          containers:
+          - name: mpi-worker
+            image: shuzhengz/omb-k8s:7.5.2
+            imagePullPolicy: Always
+            # CPU and Memory resources ONLY, no GPU as no opencl support
+            resources:
+              requests:
+                cpu: "1"
+                memory: "1Gi"
+              limits:
+                cpu: "1"
+                memory: "1Gi"

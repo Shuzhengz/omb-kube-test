@@ -13,7 +13,9 @@ RUN apt-get update && apt-get install -y \
     openssh-server \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /var/run/sshd
+RUN mkdir -p /var/run/sshd /run/sshd && \
+    sed -i 's/#*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
+    sed -i 's/#*StrictModes.*/StrictModes no/g' /etc/ssh/sshd_config
 
 WORKDIR /tmp
 RUN wget http://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-7.5.2.tar.gz && \
