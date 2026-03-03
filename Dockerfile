@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     openssh-server \
     && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /var/run/sshd
+
 WORKDIR /tmp
 RUN wget http://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-7.5.2.tar.gz && \
     tar xzf osu-micro-benchmarks-7.5.2.tar.gz && \
