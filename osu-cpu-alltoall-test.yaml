@@ -1,3 +1,5 @@
+apiVersion: kubeflow.org/v2beta1
+kind: MPIJob
 metadata:
   name: osu-cpu-alltoall-test
 spec:
@@ -19,10 +21,12 @@ spec:
             - plm_rsh_args
             - "-o StrictHostKeyChecking=no"
             - -np
-            - "2"
+            - "8" # Change this for node count
             - /usr/local/osu/libexec/osu-micro-benchmarks/mpi/collective/osu_alltoall
+            - "-m"
+            - "1:67108864" # Runs from 1B to 64MiB
     Worker:
-      replicas: 2
+      replicas: 8 # Change this for node count
       template:
         spec:
           affinity:
@@ -43,7 +47,7 @@ spec:
             resources:
               requests:
                 cpu: "1"
-                memory: "1Gi"
+                memory: "4Gi"
               limits:
                 cpu: "1"
-                memory: "1Gi"
+                memory: "4Gi"
