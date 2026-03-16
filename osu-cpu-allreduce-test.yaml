@@ -1,0 +1,53 @@
+apiVersion: kubeflow.org/v2beta1
+kind: MPIJob
+metadata:
+  name: osu-cpu-allreduce-test
+spec:
+  slotsPerWorker: 1
+  runPolicy:
+    cleanPodPolicy: Running
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: mpi-launcher
+            image: shuzhengz/omb-k8s:7.5.2
+            command:
+            - mpirun
+            - --allow-run-as-root
+            - -mca
+            - plm_rsh_args
+            - "-o StrictHostKeyChecking=no"
+            - -np
+            - "8"
+            - /usr/local/osu/libexec/osu-micro-benchmarks/mpi/collective/osu_allreduce
+            - "-m"
+            - "1:67108864"
+    Worker:
+      replicas: 8
+      template:
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: training.kubeflow.org/job-role
+                    operator: In
+                    values:
+                    - worker
+                topologyKey: kubernetes.io/hostname
+          containers:
+          - name: mpi-worker
+            image: shuzhengz/omb-k8s:7.5.2
+            imagePullPolicy: Always
+            # CPU and Memory resources ONLY, no GPU as no opencl support
+            resources:
+              requests:
+                cpu: "1"
+                memory: "4Gi"
+              limits:
+                cpu: "1"
+                memory: "4Gi"
