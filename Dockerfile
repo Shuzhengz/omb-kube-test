@@ -19,6 +19,4 @@ RUN wget http://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks
     make -j$(nproc) && \
     make install && \
     rm -rf /tmp/osu-micro-benchmarks*
-ENV PATH="/usr/local/osu/libexec/osu-micro-benchmarks/mpi/pt2pt:$PATH"
-ENV PATH="/usr/local/osu/libexec/osu-micro-benchmarks/mpi/collective:$PATH"
 CMD ["/bin/bash"]
